@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-text fade-up">
+    <div class="hero-badge">🌿 Mental Wellness Platform</div>
+    <h1>Heal your mind, <em>find your peace</em></h1>
+    <p class="hero-sub">Connect with certified mental health counsellors. Book sessions, track your progress, and start your journey to wellness today.</p>
+    <div class="hero-ctas">
+      <a href="/register/" class="btn btn-primary">Start Your Journey →</a>
+      <a href="/counsellors/" class="btn btn-outline">Browse Counsellors</a>
+    </div>
+  </div>
+  <div class="hero-visual fade-up delay-2">
+    <div class="stat-row">
+      <div class="stat-card">
+        <h3>500+</h3>
+        <p>Sessions Completed</p>
+      </div>
+      <div class="stat-card">
+        <h3>48</h3>
+        <p>Expert Counsellors</p>
+      </div>
+    </div>
+    <div class="counsellor-preview">
+      <div class="avatar avatar-green">🧠</div>
+      <div>
+        <div style="font-family:'Fraunces',serif;font-size:1.1rem;">Dr. Priya Sharma</div>
+        <div style="color:var(--muted);font-size:0.82rem;">Anxiety & Depression Specialist</div>
+        <div style="margin-top:0.3rem;"><span class="badge badge-green">✓ Available</span></div>
+      </div>
+    </div>
+    <div class="stat-card" style="background:var(--sage-dark);color:white;">
+      <p style="font-size:0.8rem;opacity:0.8;margin-bottom:0.4rem;">Average Rating</p>
+      <div style="font-size:1.8rem;font-family:'Fraunces',serif;">4.9 <span style="font-size:1rem;color:#f59e0b;">★★★★★</span></div>
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:0.3rem;">From 200+ patient reviews</p>
+    </div>
+  </div>
+</section>
+
+{% if counsellors %}
+<section class="section">
+  <div class="section-header">
+    <h2>Our Counsellors</h2>
+    <p>Certified professionals ready to support your mental wellness journey</p>
+  </div>
+  <div class="card-grid">
+    {% for c in counsellors %}
+    <div class="card counsellor-card">
+      <div class="avatar avatar-green" style="font-size:2rem;width:72px;height:72px;margin:0 auto 1rem;">
+        {{ c.name|first }}
+      </div>
+      <h3>Dr. {{ c.name }}</h3>
+      <div class="spec">{{ c.specialization }}</div>
+      <div class="exp">{{ c.experience_years }} years experience</div>
+      <div style="margin-top:1rem;">
+        <span class="badge badge-green">✓ Available</span>
+      </div>
+      <div style="margin-top:1rem;">
+        <a href="/book/" class="btn btn-primary btn-sm">Book Session</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section section-alt">
+  <div class="section-header">
+    <h2>How it works</h2>
+    <p>Three simple steps to begin your wellness journey</p>
+  </div>
+  <div class="card-grid">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">📋</div>
+      <h3 style="margin-bottom:0.5rem;">Create Account</h3>
+      <p style="color:var(--muted);font-size:0.9rem;">Sign up in minutes with your basic information and preferences.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">🔍</div>
+      <h3 style="margin-bottom:0.5rem;">Find a Counsellor</h3>
+      <p style="color:var(--muted);font-size:0.9rem;">Browse specialists by expertise and book a time that suits you.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">💬</div>
+      <h3 style="margin-bottom:0.5rem;">Begin Healing</h3>
+      <p style="color:var(--muted);font-size:0.9rem;">Attend sessions online or offline and track your progress over time.</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

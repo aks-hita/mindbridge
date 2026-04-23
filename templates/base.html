@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}MindBridge{% endblock %} — Mental Health Platform</title>
+<link rel="stylesheet" href="/static/css/style.css">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">🌿 Mind<span>Bridge</span></a>
+  <div class="nav-links">
+    <a href="/counsellors/">Find Counsellor</a>
+    {% if user.is_authenticated %}
+      {% if user.counsellor_profile %}
+        <a href="/counsellor/dashboard/">My Sessions</a>
+      {% else %}
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/book/">Book Appointment</a>
+      {% endif %}
+      <a href="/logout/" class="btn btn-outline btn-sm">Sign out</a>
+    {% else %}
+      <a href="/login/">Login</a>
+      <a href="/register/" class="btn btn-primary btn-sm">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% if messages %}
+<div style="padding:1rem 2rem;max-width:1200px;margin:0 auto;">
+  {% for msg in messages %}
+  <div class="alert {% if msg.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+    {% if msg.tags == 'success' %}✅{% else %}⚠️{% endif %} {{ msg }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<footer style="background:var(--cream);border-top:1px solid var(--sand);padding:2rem 6rem;margin-top:4rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:var(--muted);">
+  <span>🌿 MindBridge — Your mental wellness companion</span>
+  <span>Built with Django + LiveSQL</span>
+</footer>
+
+<script>
+// Tab functionality
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(target)?.classList.add('active');
+  });
+});
+
+// Animate on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('fade-up'); });
+}, {threshold: 0.1});
+document.querySelectorAll('.card,.stat-box').forEach(el => observer.observe(el));
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

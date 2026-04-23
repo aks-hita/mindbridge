@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="avatar avatar-green" style="width:52px;height:52px;margin-bottom:0.7rem;font-size:1.4rem;">
+        {{ user.first_name|first|default:user.username|first }}
+      </div>
+      <div class="name">{{ user.get_full_name|default:user.username }}</div>
+      <div class="role">Patient</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#overview" class="active" data-section="overview">📊 Overview</a>
+      <a href="#upcoming" data-section="upcoming">📅 Upcoming</a>
+      <a href="#history" data-section="history">📖 History</a>
+      <a href="/book/" style="margin-top:1rem;">➕ Book Appointment</a>
+      <a href="/counsellors/">🔍 Find Counsellors</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Good day, {{ user.first_name|default:user.username }} 🌿</h1>
+      <p>Your mental wellness dashboard</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="number">{{ upcoming.count }}</div>
+        <div class="label">Upcoming Sessions</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">{{ completed_count }}</div>
+        <div class="label">Completed Sessions</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">{{ total_hours }}h</div>
+        <div class="label">Total Therapy Time</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="tab-upcoming">📅 Upcoming ({{ upcoming.count }})</button>
+      <button class="tab" data-tab="tab-history">✅ Completed ({{ past.count }})</button>
+      <button class="tab" data-tab="tab-cancelled">❌ Cancelled ({{ cancelled.count }})</button>
+    </div>
+
+    <div id="tab-upcoming" class="tab-content active">
+      {% if upcoming %}
+      <div class="apt-list">
+        {% for apt in upcoming %}
+        <div class="apt-card">
+          <div class="apt-info">
+            <h4>Session with Dr. {{ apt.counsellor.name }}</h4>
+            <div class="meta">
+              <span>📅 {{ apt.app_date|date:"D, d M Y" }}</span>
+              <span>🕐 {{ apt.app_time|time:"g:i A" }}</span>
+              <span>{{ apt.get_mode_display }}</span>
+              <span class="badge badge-green">{{ apt.get_status_display }}</span>
+            </div>
+            <div style="margin-top:0.5rem;color:var(--muted);font-size:0.82rem;">{{ apt.counsellor.specialization }}</div>
+          </div>
+          <div class="apt-actions">
+            <a href="/appointment/{{ apt.appointment_id }}/cancel/" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <h3>No upcoming appointments</h3>
+        <p>Book a session to get started on your wellness journey.</p>
+        <a href="/book/" class="btn btn-primary" style="margin-top:1rem;">Book Now</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div id="tab-history" class="tab-content">
+      {% if past %}
+      <div class="apt-list">
+        {% for apt in past %}
+        <div class="apt-card">
+          <div class="apt-info">
+            <h4>Session with Dr. {{ apt.counsellor.name }}</h4>
+            <div class="meta">
+              <span>📅 {{ apt.app_date|date:"D, d M Y" }}</span>
+              <span>🕐 {{ apt.app_time|time:"g:i A" }}</span>
+              {% if apt.session %}
+              <span>⏱ {{ apt.session.duration }} min</span>
+              {% if apt.session.rating %}<span class="stars">{% for i in "12345" %}{% if forloop.counter <= apt.session.rating %}★{% else %}☆{% endif %}{% endfor %}</span>{% endif %}
+              {% endif %}
+              <span class="badge badge-blue">Completed</span>
+            </div>
+          </div>
+          <div class="apt-actions">
+            <a href="/appointment/{{ apt.appointment_id }}/session/" class="btn btn-outline btn-sm">View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">📖</div>
+        <h3>No completed sessions yet</h3>
+        <p>Your session history will appear here.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div id="tab-cancelled" class="tab-content">
+      {% if cancelled %}
+      <div class="apt-list">
+        {% for apt in cancelled %}
+        <div class="apt-card">
+          <div class="apt-info">
+            <h4>Session with Dr. {{ apt.counsellor.name }}</h4>
+            <div class="meta">
+              <span>📅 {{ apt.app_date|date:"D, d M Y" }}</span>
+              <span class="badge badge-red">Cancelled</span>
+            </div>
+          </div>
+          <div class="apt-actions">
+            <a href="/book/" class="btn btn-outline btn-sm">Rebook</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">✅</div>
+        <h3>No cancelled appointments</h3>
+        <p>Great! You haven't cancelled any appointments.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Complete Session{% endblock %}
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;">
+  <div class="form-container fade-up" style="max-width:560px;">
+    <div style="text-align:center;margin-bottom:1rem;font-size:2.5rem;">✅</div>
+    <h2>Complete Session</h2>
+    <p class="sub">Record notes for your session with {{ apt.user.get_full_name|default:apt.user.username }}</p>
+    <div style="background:var(--cream);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:0.9rem;">
+      <strong>📅 {{ apt.app_date|date:"D, d M Y" }}</strong> at {{ apt.app_time|time:"g:i A" }} · {{ apt.get_mode_display }}
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Session Notes (Private)</label>
+        <textarea name="session_notes" rows="5" placeholder="Notes about the session, patient progress, observations..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Session Duration (minutes)</label>
+        <input type="number" name="duration" value="60" min="15" max="180">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Mark as Complete ✓</button>
+    </form>
+    <div class="form-footer" style="margin-top:1rem;">
+      <a href="/counsellor/dashboard/">← Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

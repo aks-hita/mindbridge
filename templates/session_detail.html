@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Session Details{% endblock %}
+{% block content %}
+<div style="max-width:720px;margin:3rem auto;padding:0 2rem;">
+  <div class="page-header">
+    <h1>Session Details</h1>
+    <a href="javascript:history.back()" style="color:var(--sage-dark);text-decoration:none;">← Back</a>
+  </div>
+
+  <div class="session-block">
+    <h3>📋 Appointment Info</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.9rem;">
+      <div><strong>Counsellor</strong><br>Dr. {{ apt.counsellor.name }}</div>
+      <div><strong>Specialization</strong><br>{{ apt.counsellor.specialization }}</div>
+      <div><strong>Date</strong><br>{{ apt.app_date|date:"D, d M Y" }}</div>
+      <div><strong>Time</strong><br>{{ apt.app_time|time:"g:i A" }}</div>
+      <div><strong>Mode</strong><br>{{ apt.get_mode_display }}</div>
+      <div><strong>Status</strong><br>
+        <span class="badge {% if apt.status == 'completed' %}badge-blue{% elif apt.status == 'cancelled' %}badge-red{% else %}badge-green{% endif %}">
+          {{ apt.get_status_display }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  {% if session %}
+  <div class="session-block">
+    <h3>📝 Session Record</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.9rem;margin-bottom:1rem;">
+      <div><strong>Duration</strong><br>{{ session.duration }} minutes</div>
+      <div><strong>Session Date</strong><br>{{ session.session_date|date:"d M Y" }}</div>
+    </div>
+    {% if request.user == apt.counsellor.user and session.session_notes %}
+    <div>
+      <strong>Notes</strong>
+      <p class="session-notes" style="margin-top:0.5rem;padding:1rem;background:var(--cream);border-radius:10px;">{{ session.session_notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if request.user == apt.user %}
+  <div class="session-block">
+    <h3>💬 Your Feedback</h3>
+    {% if session.feedback %}
+    <p style="margin-bottom:0.5rem;">{{ session.feedback }}</p>
+    {% if session.rating %}<div class="stars" style="font-size:1.4rem;">{% for i in "12345" %}{% if forloop.counter <= session.rating %}★{% else %}☆{% endif %}{% endfor %}</div>{% endif %}
+    {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Share your experience</label>
+        <textarea name="feedback" rows="3" placeholder="How was your session? What helped you the most?" style="width:100%;padding:0.7rem 1rem;border:1.5px solid var(--sand);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Rating</label>
+        <div style="display:flex;gap:0.5rem;flex-direction:row-reverse;width:fit-content;">
+          {% for i in "54321" %}
+          <label style="cursor:pointer;font-size:2rem;color:var(--sand);transition:color 0.2s;" onmouseover="hoverStars(this)" onmouseout="resetStars()">
+            <input type="radio" name="rating" value="{{ i }}" style="display:none;">{{ i }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Feedback ✓</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">⏳</div>
+    <h3>Session not yet completed</h3>
+    <p>Session notes will appear here after the session is marked complete by your counsellor.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.querySelectorAll('.rating-label').forEach(label => {
+  label.addEventListener('click', function() {
+    const val = this.dataset.val;
+    this.closest('form').querySelector('[name=rating]').value = val;
+    document.querySelectorAll('.rating-label').forEach(l => {
+      l.style.color = l.dataset.val <= val ? '#f59e0b' : 'var(--sand)';
+    });
+  });
+});
+
+// Star hover effect
+const starLabels = document.querySelectorAll('[onmouseover]');
+starLabels.forEach(label => {
+  label.addEventListener('mouseover', function() {
+    let siblings = [...this.parentElement.children];
+    let idx = siblings.indexOf(this);
+    siblings.forEach((s, i) => {
+      s.style.color = i >= idx ? '#f59e0b' : 'var(--sand)';
+    });
+  });
+  label.addEventListener('mouseout', () => {
+    starLabels.forEach(s => s.style.color = 'var(--sand)');
+  });
+  label.addEventListener('click', function() {
+    this.querySelector('input').checked = true;
+    let siblings = [...this.parentElement.children];
+    let idx = siblings.indexOf(this);
+    siblings.forEach((s, i) => s.style.color = i >= idx ? '#f59e0b' : 'var(--sand)');
+  });
+});
+</script>
+{% endblock %}

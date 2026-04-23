@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Counsellor Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="avatar avatar-sage" style="width:52px;height:52px;margin-bottom:0.7rem;font-size:1.4rem;background:rgba(122,158,126,0.2);">
+        {{ counsellor.name|first }}
+      </div>
+      <div class="name">Dr. {{ counsellor.name }}</div>
+      <div class="role">{{ counsellor.specialization }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active">📊 Overview</a>
+      <a href="#today">📅 Today's Sessions</a>
+      <a href="#all">📋 All Appointments</a>
+    </nav>
+    <div style="margin-top:2rem;padding:1rem;background:white;border-radius:12px;border:1px solid var(--sand);">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Average Rating</div>
+      <div style="font-size:1.6rem;font-family:'Fraunces',serif;color:var(--sage-dark);">{{ avg_rating }} <span style="font-size:1rem;color:#f59e0b;">★</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Welcome, Dr. {{ counsellor.name }} 🌿</h1>
+      <p>{{ counsellor.specialization }} · {{ counsellor.experience_years }} years experience</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="number">{{ today_apts.count }}</div>
+        <div class="label">Today's Sessions</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">{{ upcoming.count }}</div>
+        <div class="label">Upcoming</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">{{ completed }}</div>
+        <div class="label">Total Completed</div>
+      </div>
+    </div>
+
+    {% if today_apts %}
+    <div style="margin-bottom:2rem;">
+      <h2 style="font-size:1.4rem;margin-bottom:1rem;">Today's Sessions</h2>
+      <div class="apt-list">
+        {% for apt in today_apts %}
+        <div class="apt-card" style="border-left:3px solid var(--sage-dark);">
+          <div class="apt-info">
+            <h4>{{ apt.user.get_full_name|default:apt.user.username }}</h4>
+            <div class="meta">
+              <span>🕐 {{ apt.app_time|time:"g:i A" }}</span>
+              <span>{{ apt.get_mode_display }}</span>
+              <span class="badge badge-green">Today</span>
+            </div>
+          </div>
+          <div class="apt-actions">
+            <a href="/appointment/{{ apt.appointment_id }}/complete/" class="btn btn-primary btn-sm">Mark Complete</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="tabs">
+      <button class="tab active" data-tab="c-upcoming">📅 Upcoming ({{ upcoming.count }})</button>
+      <button class="tab" data-tab="c-all">📋 All Sessions</button>
+    </div>
+
+    <div id="c-upcoming" class="tab-content active">
+      {% if upcoming %}
+      <div class="apt-list">
+        {% for apt in upcoming %}
+        <div class="apt-card">
+          <div class="apt-info">
+            <h4>{{ apt.user.get_full_name|default:apt.user.username }}</h4>
+            <div class="meta">
+              <span>📅 {{ apt.app_date|date:"D, d M Y" }}</span>
+              <span>🕐 {{ apt.app_time|time:"g:i A" }}</span>
+              <span>{{ apt.get_mode_display }}</span>
+              <span class="badge badge-green">Booked</span>
+            </div>
+          </div>
+          <div class="apt-actions">
+            <a href="/appointment/{{ apt.appointment_id }}/complete/" class="btn btn-primary btn-sm">Complete Session</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <h3>No upcoming appointments</h3>
+        <p>New bookings will appear here.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div id="c-all" class="tab-content">
+      <div class="apt-list">
+        {% for apt in appointments %}
+        <div class="apt-card">
+          <div class="apt-info">
+            <h4>{{ apt.user.get_full_name|default:apt.user.username }}</h4>
+            <div class="meta">
+              <span>📅 {{ apt.app_date|date:"d M Y" }}</span>
+              <span>🕐 {{ apt.app_time|time:"g:i A" }}</span>
+              {% if apt.session and apt.session.rating %}
+              <span class="stars">{% for i in "12345" %}{% if forloop.counter <= apt.session.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% endif %}
+              <span class="badge {% if apt.status == 'completed' %}badge-blue{% elif apt.status == 'cancelled' %}badge-red{% else %}badge-green{% endif %}">
+                {{ apt.get_status_display }}
+              </span>
+            </div>
+          </div>
+          <div class="apt-actions">
+            <a href="/appointment/{{ apt.appointment_id }}/session/" class="btn btn-outline btn-sm">View</a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <h3>No appointments yet</h3>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
